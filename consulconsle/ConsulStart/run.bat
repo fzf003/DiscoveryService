@@ -1,0 +1,1 @@
+consul.exe agent -server -bootstrap-expect 1  -data-dir .\consul\tmp -node=Dev.Service -bind=192.168.1.101 -advertise 192.168.1.101 -ui -client=0.0.0.0
