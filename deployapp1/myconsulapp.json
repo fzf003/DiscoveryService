@@ -5,7 +5,14 @@
             "script": "index.js",
             "error_file": "logs/myconsulapp-err.log",
             "out_file": "logs/myconsulapp-out.log",
-            "max_memory_restart": "500M"
+            "max_memory_restart": "500M",
+            "instances": "max",
+            "ignore_watch": [
+                "runtimes",
+                "logs",
+                "pub"
+            ],
+            "watch":true
          
             
          }

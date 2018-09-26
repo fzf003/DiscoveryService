@@ -58,12 +58,12 @@ namespace consulconsle {
         public static IApplicationBuilder RegisterConsul (this IApplicationBuilder app, IApplicationLifetime lifetime) {
 
             var consulClient = app.ApplicationServices.GetService<IConsulClient> ();
-            var endpoint = app.ApplicationServices.GetService<StartEndPoint> ();
+            var endpoint = app.ApplicationServices.GetService<ServiceConfig> ();
 
             var httpCheck = new AgentServiceCheck () {
                 DeregisterCriticalServiceAfter = TimeSpan.FromSeconds (5), //服务启动多久后注册
                 Interval = TimeSpan.FromSeconds (10), //健康检查时间间隔，或者称为心跳间隔
-                HTTP = $"{endpoint.Url.AbsoluteUri}status", //健康检查地址
+                HTTP = $"{endpoint.serviceUri.AbsoluteUri}status", //健康检查地址
                 Timeout = TimeSpan.FromSeconds (5)
             };
 
@@ -72,10 +72,10 @@ namespace consulconsle {
             // Register service with consul
             var registration = new AgentServiceRegistration () {
                 Checks = new [] { httpCheck },
-                ID = endpoint.ServiceId,
+                ID = endpoint.serviceId,
                 Name = endpoint.serviceName,
-                Address = endpoint.Url.Host,
-                Port = endpoint.Url.Port,
+                Address = endpoint.serviceUri.Host,
+                Port = endpoint.serviceUri.Port,
                 Tags = new [] { $"urlprefix-/webapp" } //添加 urlprefix-/servicename 格式的 tag 标签，以便 Fabio 识别
             };
 

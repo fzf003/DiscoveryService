@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace DiscoveryService {
 
     public interface IFrameworkProvider {
-        Uri Start (string serviceName, string version);
+        Uri Start (string serviceName, string version,Action<Uri> action=null);
     }
 
     public interface IClusterClinet {

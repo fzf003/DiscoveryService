@@ -5,12 +5,13 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using DiscoveryService;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace consulconsle.Controllers
 {
 
     
-     [Route("api/[controller]")]
+     [Route("apiservice/[controller]")]
     [ApiController]
     public class ValuesController : ControllerBase
     {
@@ -24,8 +25,11 @@ namespace consulconsle.Controllers
 
         readonly HttpClient httpClient;
 
+         public IConfiguration Configuration { get; }
 
-        public ValuesController(IClusterProvider clusterProvider, IServiceBus serviceBus, ServiceConfig serviceConfig, HttpClient httpClient)
+
+
+        public ValuesController(IClusterProvider clusterProvider, IServiceBus serviceBus, ServiceConfig serviceConfig, HttpClient httpClient,IConfiguration configuration)
         {
             this.clusterProvider = clusterProvider;
 
@@ -34,6 +38,8 @@ namespace consulconsle.Controllers
             this.serviceConfig = serviceConfig;
 
             this.httpClient = httpClient;
+
+            this.Configuration=configuration;
 
         }
         // GET api/values
@@ -46,6 +52,14 @@ namespace consulconsle.Controllers
             await this.serviceBus.SendAsync<dynamic>(this.serviceConfig.serviceName, result);
 
             return result;
+        }
+
+        
+        [HttpGet("/ServiceInfo")]
+        public string Heathle()
+        {
+             return HttpContext.Request.Host.Port + " " + Configuration["AppName"] + " " + DateTime.Now.ToString();
+
         }
 
 

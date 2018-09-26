@@ -37,7 +37,7 @@ namespace consulconsle
             services.AddSingleton<IConnectionMultiplexer>((prov) =>
              {
 
-                 return ConnectionMultiplexer.Connect("192.168.1.101:6379");
+                 return ConnectionMultiplexer.Connect("localhost");
              });
 
 
@@ -47,14 +47,11 @@ namespace consulconsle
             services.AddDiscoveryService();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
-
+ 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-        
-    
-
-            services.AddSingleton<HttpClient>();
+ 
+      
  
         }
 
@@ -79,21 +76,18 @@ namespace consulconsle
             {
                 var serviceinfo = app.ApplicationServices.GetService<ServiceConfig>();
                 var cluster = app.ApplicationServices.GetService<IClusterProvider>();
-
-                var redis=app.ApplicationServices.GetService<IServiceBus>();
-                var HttpClient=app.ApplicationServices.GetService<HttpClient>();
-
-                cluster.RegisterServiceAsync (
-                    serviceinfo.serviceName,serviceinfo.serviceId,serviceinfo.version,serviceinfo.serviceUri
-
-                );
+                 cluster.RegisterServiceAsync (
+                    serviceinfo.serviceName,
+                    serviceinfo.serviceId,
+                    serviceinfo.version,
+                    serviceinfo.serviceUri
+                 );
 
             });
 
             applicationLifetime.ApplicationStopped.Register(() =>
             {
-
-                var serviceinfo = app.ApplicationServices.GetService<ServiceConfig>();
+                 var serviceinfo = app.ApplicationServices.GetService<ServiceConfig>();
                 var cluster = app.ApplicationServices.GetService<IClusterProvider>();
                 cluster.DeregisterServiceAsync(serviceinfo.serviceId);
 
