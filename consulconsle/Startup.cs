@@ -45,6 +45,8 @@ namespace consulconsle
 
 
 
+
+
             services.AddSingleton<IServiceBus, RedisBus>();
 
 
@@ -69,33 +71,13 @@ namespace consulconsle
                 app.UseHsts();
             }
 
+
+
             app.UseMvc();
+            
             app.UseMvcWithDefaultRoute();
 
-            applicationLifetime.ApplicationStarted.Register(() =>
-            {
-                var serviceinfo = app.ApplicationServices.GetService<IOptions<ServiceConfig>>();
-                var cluster = app.ApplicationServices.GetService<IClusterClinet>();
-
-                cluster.RegisterServiceAsync(
-                   serviceinfo.Value.serviceName,
-                   serviceinfo.Value.serviceId,
-                   serviceinfo.Value.version,
-                   serviceinfo.Value.serviceUri
-                );
-
-            });
-
-            applicationLifetime.ApplicationStopped.Register(() =>
-            {
-                var serviceinfo = app.ApplicationServices.GetService<IOptions<ServiceConfig>>();
-                var cluster = app.ApplicationServices.GetService<IClusterClinet>();
-                cluster.DeregisterServiceAsync(serviceinfo.Value.serviceId);
-
-            });
-
-
-
+            app.UseDiscoveryService();
 
             app.MapWhen(context =>
             {
