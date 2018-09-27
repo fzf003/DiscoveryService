@@ -39,6 +39,7 @@ namespace consulapp {
 
                 actor.Tell("sss");
             });
+ 
 
             //This is only for demo purposes done in the service initialization
             /*   var actorManager = app.ApplicationServices.GetRequiredService<IActorManager>();

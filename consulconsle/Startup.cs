@@ -10,6 +10,7 @@ using System;
 using StackExchange.Redis;
 using System.Net.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace consulconsle
 {
@@ -19,6 +20,7 @@ namespace consulconsle
         {
             var builder = new ConfigurationBuilder()
                          .SetBasePath(env.ContentRootPath)
+                         .AddJsonFile("appsettings.json")
                          .AddEnvironmentVariables();
 
             Configuration = builder.Build();
@@ -29,7 +31,7 @@ namespace consulconsle
 
         public void ConfigureServices(IServiceCollection services)
         {
- 
+
             services.AddOptions();
 
             services.AddSingleton<ISerializationService, DefaultSerializationService>();
@@ -41,21 +43,22 @@ namespace consulconsle
              });
 
 
+
+
             services.AddSingleton<IServiceBus, RedisBus>();
 
 
-            services.AddDiscoveryService();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
- 
+
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
- 
-      
- 
+
+
+
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime applicationLifetime,ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime applicationLifetime, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {
@@ -66,30 +69,28 @@ namespace consulconsle
                 app.UseHsts();
             }
 
-            
-
-
             app.UseMvc();
             app.UseMvcWithDefaultRoute();
 
             applicationLifetime.ApplicationStarted.Register(() =>
             {
-                var serviceinfo = app.ApplicationServices.GetService<ServiceConfig>();
-                var cluster = app.ApplicationServices.GetService<IClusterProvider>();
-                 cluster.RegisterServiceAsync (
-                    serviceinfo.serviceName,
-                    serviceinfo.serviceId,
-                    serviceinfo.version,
-                    serviceinfo.serviceUri
-                 );
+                var serviceinfo = app.ApplicationServices.GetService<IOptions<ServiceConfig>>();
+                var cluster = app.ApplicationServices.GetService<IClusterClinet>();
+
+                cluster.RegisterServiceAsync(
+                   serviceinfo.Value.serviceName,
+                   serviceinfo.Value.serviceId,
+                   serviceinfo.Value.version,
+                   serviceinfo.Value.serviceUri
+                );
 
             });
 
             applicationLifetime.ApplicationStopped.Register(() =>
             {
-                 var serviceinfo = app.ApplicationServices.GetService<ServiceConfig>();
-                var cluster = app.ApplicationServices.GetService<IClusterProvider>();
-                cluster.DeregisterServiceAsync(serviceinfo.serviceId);
+                var serviceinfo = app.ApplicationServices.GetService<IOptions<ServiceConfig>>();
+                var cluster = app.ApplicationServices.GetService<IClusterClinet>();
+                cluster.DeregisterServiceAsync(serviceinfo.Value.serviceId);
 
             });
 

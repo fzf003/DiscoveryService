@@ -1,0 +1,21 @@
+{
+    "apps": [
+        {
+            "name": "consoleapp-1",
+            "script": "index.js",
+            "error_file": "logs/myconsulapp-err.log",
+            "out_file": "logs/myconsulapp-out.log",
+            "max_memory_restart": "500M",
+            "instances": 1,
+            "ignore_watch": [
+                "runtimes",
+                "logs",
+                "pub"
+            ],
+            "watch":true
+         
+            
+         }
+       
+    ]
+}

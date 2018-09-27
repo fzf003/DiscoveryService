@@ -6,30 +6,30 @@ using System.Threading.Tasks;
 using DiscoveryService;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace consulconsle.Controllers
 {
 
-    
-     [Route("apiservice/[controller]")]
+
+    [Route("apiservice/[controller]")]
     [ApiController]
     public class ValuesController : ControllerBase
     {
-
-
-        readonly IClusterProvider clusterProvider;
+ 
+        readonly IClusterClinet clusterProvider;
 
         readonly IServiceBus serviceBus;
 
-        readonly ServiceConfig serviceConfig;
+        readonly IOptions<ServiceConfig> serviceConfig;
 
         readonly HttpClient httpClient;
 
-         public IConfiguration Configuration { get; }
+        public IConfiguration Configuration { get; }
 
 
 
-        public ValuesController(IClusterProvider clusterProvider, IServiceBus serviceBus, ServiceConfig serviceConfig, HttpClient httpClient,IConfiguration configuration)
+        public ValuesController(IClusterClinet clusterProvider, IServiceBus serviceBus, IOptions<ServiceConfig> serviceConfig, HttpClient httpClient, IConfiguration configuration)
         {
             this.clusterProvider = clusterProvider;
 
@@ -39,31 +39,29 @@ namespace consulconsle.Controllers
 
             this.httpClient = httpClient;
 
-            this.Configuration=configuration;
+            this.Configuration = configuration;
 
         }
         // GET api/values
-       [HttpGet]
-        public async Task<ServiceInformation> Get()
+        [HttpGet]
+        public async Task<ServiceInformation[]> Get()
         {
 
-            var result = await this.clusterProvider.FindServiceInstanceAsync("apiservice");
-
-            await this.serviceBus.SendAsync<dynamic>(this.serviceConfig.serviceName, result);
+            var result = await this.clusterProvider.FindServiceInstancesAsync("apiservice");
 
             return result;
         }
 
-        
+
         [HttpGet("/ServiceInfo")]
         public string Heathle()
         {
-             return HttpContext.Request.Host.Port + " " + Configuration["AppName"] + " " + DateTime.Now.ToString();
+            return HttpContext.Request.Host.Port + " " + Configuration["AppName"] + " " + DateTime.Now.ToString();
 
         }
 
 
-      
+
 
 
 

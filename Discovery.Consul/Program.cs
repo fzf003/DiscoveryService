@@ -4,65 +4,85 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 using Consul;
 using DiscoveryService;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Refit;
 
-namespace Discovery.Consul {
-    class Program {
-        static void Main (string[] args) {
+namespace Discovery.Consul
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
 
-            var provider = GetProvider (services => {
-                services.AddDiscoveryService();
-            });
+            ServiceRun().Wait();
 
-           
-            
-
-            var client = provider.GetService<IClusterProvider> ();
-
-            var httpfactory = provider.GetService<IHttpClientFactory> ();
-
-            string servicename = "Net40App";
-
-            var kvclient = client.KvPutAsync ("f", new {
-                name = "fzf003"
-            });
-
-            for (;;) {
-                var result = DnsHelper.GetIpAddressAsync ().Result;
-                Console.WriteLine (result);
-                Console.ReadKey ();
-            }
-
-           // Console.ReadKey ();
-
-            for (;;) {
-                Console.WriteLine ("===================================================");
-
-                var servinfo = client.FindServiceInstanceAsync (servicename).Result;
-
-                var httpclient = httpfactory.CreateClient ();
-
-                httpclient.GetStringAsync (servinfo.ToUri ().AbsoluteUri + "api/health")
-                    .ContinueWith (tr => {
-                        Console.WriteLine ($"{servinfo.ToUri()}--{tr.Result}");
-                    });
-
-                Console.ReadKey ();
-            }
-
-            Console.ReadKey ();
+            Console.ReadKey();
         }
 
-        static IServiceProvider GetProvider (Action<IServiceCollection> serviceaction) {
-            IServiceCollection servies = new ServiceCollection ();
-            if (serviceaction != null) {
-                serviceaction (servies);
+        static async Task ServiceRun()
+        {
+            var provider = GetProvider(services =>
+          {
+            /*  services.AddDiscoveryServiceClient(cfg =>
+              {
+                  cfg.Address = new Uri("http://10.6.24.13:8500");
+              });*/
+
+               services.AddSingleton<QueryServiceOption>(new QueryServiceOption{
+                   GatewayUrl="http://localhost:5000"
+               });
+
+ 
+
+              services.AddSingleton<IGateWayQueryService, APiServiceQuery>();
+
+          });
+
+
+            var queryserviceenpoint = provider.GetService<IGateWayQueryService>();
+
+
+            string servicename = "apiservice";
+
+
+            for (; ; )
+            {
+
+                Console.WriteLine("===================================================");
+
+                var queryServiceclient = RestService.For<IQueryService>("http://localhost:5000");
+                
+                //await queryserviceenpoint.GetEndpoint(servicename);
+
+                 var queryresult = await queryServiceclient.QuerySerivce(servicename);
+
+
+                Console.WriteLine(queryresult.ToString());
+
+                Console.ReadKey();
             }
 
-            return servies.BuildServiceProvider ();
+        }
+
+
+
+
+        static IServiceProvider GetProvider(Action<IServiceCollection> serviceaction)
+        {
+            IServiceCollection servies = new ServiceCollection();
+            if (serviceaction != null)
+            {
+                serviceaction(servies);
+            }
+
+            return servies.BuildServiceProvider();
 
         }
     }
+
+    
 }

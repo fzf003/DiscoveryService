@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace consulconsle
 {
@@ -24,23 +25,19 @@ namespace consulconsle
 
         public static IWebHost CreateWebHostBuilder()
         {
-            var baseurl = Configuration.GetUri();
+            var baseurl = UriConfiguration.GetUri();
 
             return WebHost.CreateDefaultBuilder()
                    .ConfigureServices(services =>
-                   {
-                       services.AddSingleton<ServiceConfig>(new ServiceConfig
+                   { 
+                        services.AddDiscoveryService(cfg =>
                        {
-
-                           serviceName = "apiservice",
-
-                           serviceId = Guid.NewGuid().ToString("N"),
-
-                           serviceUri = baseurl,
-
-                           version = "v1.0"
-                       });
-                   })
+                           cfg.serviceName = "apiservice";
+                           cfg.serviceId = Guid.NewGuid().ToString("N");
+                           cfg.serviceUri = baseurl;
+                           cfg.version = "v1.0";
+                        });
+                    })
                  .UseUrls(baseurl.AbsoluteUri.Replace("localhost", "*"))
                 .UseStartup<Startup>()
                 .Build();

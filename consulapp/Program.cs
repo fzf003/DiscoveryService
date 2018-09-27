@@ -18,11 +18,11 @@ namespace consulapp {
         static void Main (string[] args) {
             Console.WriteLine ("Hello World!");
             CreateWebHostBuilder(args).Run();
-            // Task.Run(()=> CreateWebHostBuilder(args).Run());
+     
 
         
 
-//@"J:\dotnetapp\netfullapp\consulapp\consulapp\console\run.bat",
+ 
   
 
            /* IServiceCollection services = new ServiceCollection ();

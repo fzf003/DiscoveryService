@@ -3,8 +3,9 @@
 using System;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
-
+using DiscoveryService;
 namespace Discovery.Consul {
+
   public interface IHost : IDisposable
     {
         void Run();
@@ -29,8 +30,7 @@ namespace Discovery.Consul {
         public virtual void OptionsConfigurat(IServiceCollection services)
         {
 
-
-
+              services.AddDiscoveryService(null);
         }
 
         public void Run()
@@ -77,8 +77,7 @@ namespace Discovery.Consul {
                 Console.WriteLine("已关闭。。。。");
 
             }
-
-
+ 
 
         }
 

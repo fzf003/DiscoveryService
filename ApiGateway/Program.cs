@@ -19,10 +19,7 @@ namespace ApiGateway
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-           .ConfigureAppConfiguration((context, builder) => {
-                    builder.SetBasePath(context.HostingEnvironment.ContentRootPath)
-                    .AddJsonFile("Ocelot.json");
-                })
-                .UseStartup<Startup>();
+                   .UseKestrel()
+                   .UseStartup<Startup>();
     }
 }
