@@ -11,7 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using DiscoveryService;
-
+using Ocelot.DependencyInjection;
+using Ocelot.Middleware;
 namespace ApiGateway
 {
     public class Startup
@@ -19,17 +20,20 @@ namespace ApiGateway
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            
         }
 
         public IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
-        {
+        {  
 
-            services.AddDiscoveryServiceClient(cfg =>
+              services.AddDiscoveryServiceClient(cfg =>
                  {
-                     cfg.Address = new Uri("http://10.6.24.13:8500");
+                     cfg.Address = new Uri("http://10.0.84.33:8500");
                  });
+
+                 services.AddOcelot(Configuration as ConfigurationRoot);
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
          }
@@ -42,6 +46,8 @@ namespace ApiGateway
             }
 
             app.UseMvc();
+             
+              app.UseOcelot().Wait();
         }
     }
 }

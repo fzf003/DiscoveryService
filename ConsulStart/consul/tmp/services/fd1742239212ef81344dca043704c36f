@@ -1,1 +1,0 @@
-{"Token":"","Service":{"ID":"redis1","Service":"redisServer","Tags":["redis-dev"],"Address":"127.0.0.1","Meta":null,"Port":6379,"EnableTagOverride":false,"ProxyDestination":"","Connect":{"Native":false,"Proxy":null},"CreateIndex":0,"ModifyIndex":0}}

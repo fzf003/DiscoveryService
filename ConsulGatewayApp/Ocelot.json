@@ -1,0 +1,99 @@
+{
+  "ReRoutes": [
+    {
+      "DownstreamPathTemplate": "/api/calc/add/{x}/{y}",
+      "DownstreamScheme": "http",
+      "ServiceName": "apiservice",
+      "LoadBalancerOptions": {
+        "Type": "RoundRobin"
+      },
+      "UseServiceDiscovery": true,
+      "UpstreamPathTemplate": "/fzf/add/{x}/{y}",
+      "UpstreamHttpMethod": []
+    },
+
+    {
+      "DownstreamPathTemplate": "/apiservice/values/{url}",
+      "DownstreamScheme": "http",
+      "ServiceName": "apiservice",
+      "LoadBalancerOptions": {
+        "Type": "RoundRobin"
+      },
+      "UseServiceDiscovery": true,
+      "UpstreamPathTemplate": "/queryservice/{url}",
+      "UpstreamHttpMethod": ["GET"]
+    },
+
+    
+    {
+      "DownstreamPathTemplate": "/GetServiceInfo/{url}",
+      "DownstreamScheme": "http",
+      "ServiceName": "gatewayapp",
+      "LoadBalancerOptions": {
+        "Type": "RoundRobin"
+      },
+      "UseServiceDiscovery": true,
+      "UpstreamPathTemplate": "/GetServiceInfo/{url}",
+      "UpstreamHttpMethod": ["GET"]
+    },
+
+    {
+      "DownstreamPathTemplate": "/GetServices/{url}",
+      "DownstreamScheme": "http",
+      "ServiceName": "gatewayapp",
+      "LoadBalancerOptions": {
+        "Type": "RoundRobin"
+      },
+      "UseServiceDiscovery": true,
+      "UpstreamPathTemplate": "/GetServices/{url}",
+      "UpstreamHttpMethod": ["GET"]
+    },
+     
+     
+
+
+
+    {
+      "DownstreamPathTemplate": "/ServiceInfo",
+      "DownstreamScheme": "http",
+      "ServiceName": "apiservice",
+      "UseServiceDiscovery": true,
+      "UpstreamPathTemplate": "/fzf003/ServiceInfo",
+      "UpstreamHttpMethod": [],
+      "LoadBalancerOptions": {
+        "Type": "RoundRobin"
+      },
+      "Key": "Laura"
+    },
+    {
+      "DownstreamPathTemplate": "/hello",
+      "DownstreamScheme": "http",
+      "ServiceName": "myservice1",
+      "UseServiceDiscovery": true,
+      "UpstreamPathTemplate": "/fzf003/hello",
+      "UpstreamHttpMethod": [],
+      "LoadBalancerOptions": {
+        "Type": "RoundRobin"
+      },
+      "Key": "Tom"
+    }
+  ],
+  "Aggregates": [
+    {
+      "ReRouteKeys": [
+        "Tom",
+        "Laura"
+      ],
+      "UpstreamPathTemplate": "/agg"
+    }
+  ],
+  "GlobalConfiguration": {
+    "RequestIdKey": "OcRequestId",
+    
+    "ServiceDiscoveryProvider": {
+      "Host": "localhost",
+      "Port": 8500,
+      "Type": "Consul"
+    }
+  }
+}

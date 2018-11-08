@@ -23,6 +23,8 @@ namespace ApiGateway
         [HttpGet("/GetServices/{servicename}")]
         public Task<ServiceInformation[]> GetServices(string servicename)
         {
+             
+             
             return this.clusterClinet.FindServiceInstancesAsync(servicename);
         }
  

@@ -2,3 +2,4 @@ nuget.config
 obj
 bin
 logs
+consul

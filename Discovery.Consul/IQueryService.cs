@@ -3,6 +3,7 @@
 using System.Threading.Tasks;
 using DiscoveryService;
 using Refit;
+using System;
 
 namespace Discovery.Consul
 {
@@ -60,4 +61,22 @@ namespace Discovery.Consul
         }
 
     }
+
+
+    public interface IStart
+    {
+        void Start();
+    }
+
+    public class MyStart : IStart
+    {
+        public void Start()
+        {
+           Console.WriteLine("开始");
+        }
+    }
+
+
+
+
 }

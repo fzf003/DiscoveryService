@@ -94,11 +94,24 @@ namespace consulapp {
             Console.ReadKey ();
         }
 
-        public static IWebHost CreateWebHostBuilder (string[] args) =>
-            new WebHostBuilder ()
+        public static IWebHost CreateWebHostBuilder (string[] args) {
+
+            IConfiguration config = new ConfigurationBuilder()
+            
+							.AddCommandLine(args)
+							.Build();
+
+			Startup.Args = args;
+
+            return new WebHostBuilder ()
+            
             .UseStartup<Startup> ()
+            
             .Build ();
 
+
+        }
+            
         static void Publisher () {
             var cf = new StanConnectionFactory ();
             var option = StanOptions.GetDefaultOptions ();

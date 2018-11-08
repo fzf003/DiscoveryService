@@ -39,10 +39,12 @@ namespace consulconsle
             services.AddSingleton<IConnectionMultiplexer>((prov) =>
              {
 
-                 return ConnectionMultiplexer.Connect("localhost");
+                 return ConnectionMultiplexer.Connect("10.6.24.13:6379");
              });
 
+             
 
+       
 
 
 
@@ -97,7 +99,7 @@ namespace consulconsle
 
             });
 
-            app.Run(async context =>
+           /*  app.Run(async context =>
                      {
                          var conf = app.ApplicationServices.GetService<IHttpContextAccessor>();
 
@@ -105,7 +107,7 @@ namespace consulconsle
                          {
                              await context.Response.WriteAsync($"{c.Key} = {c.Value}\n");
                          }
-                     });
+                     });*/
 
 
 

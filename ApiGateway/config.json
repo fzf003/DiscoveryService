@@ -1,104 +1,76 @@
 {
     "ReRoutes": [
-        {
-            "DownstreamPathTemplate": "/apiservice/{controller}/{id}",
-            "DownstreamScheme": "http",
-            "DownstreamHostAndPorts": [
-                {
-                    "Host": "localhost",
-                    "Port": 64448
-                },
-                {
-                    "Host": "localhost",
-                    "Port": 64450
-                },
-                {
-                    "Host": "localhost",
-                    "Port": 64441
-                },
-                {
-                    "Host": "localhost",
-                    "Port": 64442
-                }
-            ],
-            "UpstreamPathTemplate": "/apiservice/{controller}/{id}",
-            "UpstreamHttpMethod": [
-                "Get"
-            ]
+      {
+        "DownstreamPathTemplate": "/apiservice/values/{id}",
+        "DownstreamScheme": "http",
+        "ServiceName":"apiservice",
         
-        },
-        {
-            "DownstreamPathTemplate": "/apiservice/{controller}",
-            "DownstreamScheme": "http",
-            "DownstreamHostAndPorts": [
-                {
-                    "Host": "localhost",
-                    "Port": 64448
-                },
-                {
-                    "Host": "localhost",
-                    "Port": 64450
-                },
-                {
-                    "Host": "localhost",
-                    "Port": 64441
-                },
-                {
-                    "Host": "localhost",
-                    "Port": 64442
-                }
-            ],
-            "UpstreamPathTemplate": "/apiservice/{controller}",
-            "UpstreamHttpMethod": [
-                "Get"
-            ]
-         
-        },
-
-
-        {
-            "DownstreamPathTemplate": "/ServiceInfo",
-            "DownstreamScheme": "http",
-            "DownstreamHostAndPorts": [
-                {
-                    "Host": "localhost",
-                    "Port": 64448
-                },
-                {
-                    "Host": "localhost",
-                    "Port": 64450
-                },
-                {
-                    "Host": "localhost",
-                    "Port": 64441
-                },
-                {
-                    "Host": "localhost",
-                    "Port": 64442
-                }
-            ],
-            "UpstreamPathTemplate": "/ServiceInfo",
-            "UpstreamHttpMethod": [
-                "Get"
-            ],
-            "LoadBalancer": "RoundRobin",
-            "RateLimitOptions": {
-                "ClientWhitelist": [],
-                "EnableRateLimiting": true,
-                "Period": "1s",
-                "PeriodTimespan": 1,
-                "Limit": 1
-            }
-            
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "10.0.84.33",
+            "Port": 56018
+          },
+          {
+            "Host": "10.0.84.33",
+            "Port": 55200
+          }
+        ],
+        "UpstreamPathTemplate": "/fzf/apiservice/{id}",
+        "UpstreamHttpMethod": [],
+        "LoadBalancerOptions": {
+          "Type": "RoundRobin"
         }
+      },
+      {
+        "DownstreamPathTemplate": "/ServiceInfo",
+        "DownstreamScheme": "http",
+        "ServiceName":"apiservice",
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "10.0.84.33",
+            "Port": 56018
+          },
+          {
+            "Host": "10.0.84.33",
+            "Port": 55200
+          }
+        ],
+        "UpstreamPathTemplate": "/fzf003/ServiceInfo",
+        "UpstreamHttpMethod": [],
+        "LoadBalancerOptions": {
+          "Type": "RoundRobin"
+        }
+      },
+      {
+        "DownstreamPathTemplate": "/api/calc/add/{x}/{y}",
+        "DownstreamScheme": "http",
+        "ServiceName":"apiservice",
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "10.0.84.33",
+            "Port": 56018
+          },
+          {
+            "Host": "10.0.84.33",
+            "Port": 55200
+          }
+        ],
+        "UpstreamPathTemplate": "/fzf/add/{x}/{y}",
+        "UpstreamHttpMethod": [
+          
+        ],
+        "LoadBalancerOptions": {
+          "Type": "RoundRobin"
+        }
+      }
     ],
     "GlobalConfiguration": {
-        "BaseUrl": "http://localhost:8899",
-        "RateLimitOptions": {
-            "DisableRateLimitHeaders": false,
-            "QuotaExceededMessage": "Customize Tips!",
-            "HttpStatusCode": 999,
-            "ClientIdHeader" : "Test"
-          }
+      "RequestIdKey": "OcRequestId",
+      "AdministrationPath": "/administration",
+      "BaseUrl": "http://localhost:56789",
+      "ServiceDiscoveryProvider": {
+        "Host": "10.0.84.33:8500",  
+        "Port": 8500   
+      }
     }
-}
+  }

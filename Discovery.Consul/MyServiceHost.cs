@@ -1,86 +1,78 @@
-
-
 using System;
 using System.Threading;
-using Microsoft.Extensions.DependencyInjection;
 using DiscoveryService;
+using Microsoft.Extensions.DependencyInjection;
 namespace Discovery.Consul {
 
-  public interface IHost : IDisposable
-    {
-        void Run();
-        void Stop();
+    public interface IHost : IDisposable {
+        void Run ();
+        void Stop ();
 
     }
 
-    public class MyServiceHost : IHost
-    {
-        readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        readonly ManualResetEvent _workerShutDown = new ManualResetEvent(false);
+    public partial class MyServiceHost : IHost {
+        readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource ();
+        readonly ManualResetEvent _workerShutDown = new ManualResetEvent (false);
+        readonly IServiceCollection services;
 
-        readonly IServiceCollection services = new ServiceCollection();
+        ServiceProvider applicationServices;
 
-        ServiceProvider serviceProvider;
+        public ServiceProvider ApplicationServices { get => applicationServices; set => applicationServices = value; }
 
-        public MyServiceHost()
+        public MyServiceHost (Action<IServiceCollection> servicesbuild=null) {
+
+            this.services = new ServiceCollection ();
+            servicesbuild?.Invoke(this.services);
+
+        }
+
+       /*  public virtual IHost OptionsConfigurat (Action<IServiceCollection> servicesbuild) {
+
+            servicesbuild?.Invoke (services);
+            return this;
+        }*/
+
+        protected virtual void OnStart()
         {
 
         }
 
-        public virtual void OptionsConfigurat(IServiceCollection services)
-        {
+        public void Run () {
 
-              services.AddDiscoveryService(null);
-        }
+            ApplicationServices = services.BuildServiceProvider ();
 
-        public void Run()
-        {
-
-            OptionsConfigurat(services);
-
-            serviceProvider=services.BuildServiceProvider();
-
-
-            var token = _cancellationTokenSource.Token;
-
-            token.Register(() =>
-            {
-
-                Console.WriteLine("正在停止。。。。。");
-
+            this.HostClosed.Register (() => {
+                Console.WriteLine ("正在停止。。。。。");
             });
 
-            Console.WriteLine("运行中.....");
+            OnStart();
 
-
-            this._workerShutDown.Set();
+            this._workerShutDown.Set ();
         }
 
-
-        public void Stop()
-        {
-            _cancellationTokenSource?.Cancel();
-            this.serviceProvider?.Dispose();
+        public void Stop () {
+            _cancellationTokenSource?.Cancel ();
+            this.ApplicationServices?.Dispose ();
         }
 
-        public void Dispose()
-        {
-            Stop();
+        public void Dispose () {
+            Stop ();
 
-            if (!_workerShutDown.WaitOne(1000))
-            {
-                Console.WriteLine("The {workerName} worker did not shut down within {shutdownTimeoutSeconds} seconds!", 1000);
+            if (!_workerShutDown.WaitOne (1000)) {
+                Console.WriteLine ("The {workerName} worker did not shut down within {shutdownTimeoutSeconds} seconds!", 1000);
+
+            } else {
+                Console.WriteLine ("已关闭。。。。");
 
             }
-            else
-            {
-                Console.WriteLine("已关闭。。。。");
-
-            }
- 
 
         }
 
+    }
 
+
+    public class HelloHost:MyServiceHost
+    {
+        
     }
 }

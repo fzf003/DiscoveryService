@@ -11,78 +11,71 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Refit;
 
-namespace Discovery.Consul
-{
-    class Program
-    {
-        static void Main(string[] args)
-        {
+namespace Discovery.Consul {
+    class Program {
+        static void Main (string[] args) {
 
-            ServiceRun().Wait();
+             ServiceRun().Wait();
 
-            Console.ReadKey();
+             /* 
+
+            using (var host = new MyServiceHost (services => {
+                 services.AddSingleton<IStart, MyStart> ();
+             })) {
+
+                host.Run();
+
+                var process = host.ApplicationServices.GetService<IStart> ();
+
+                process.Start ();
+
+                Console.ReadKey ();
+            }*/
+
+            Console.ReadKey ();
         }
 
-        static async Task ServiceRun()
-        {
-            var provider = GetProvider(services =>
-          {
-            /*  services.AddDiscoveryServiceClient(cfg =>
-              {
-                  cfg.Address = new Uri("http://10.6.24.13:8500");
-              });*/
+        static async Task ServiceRun () {
+            var provider = GetProvider (services => {
 
-               services.AddSingleton<QueryServiceOption>(new QueryServiceOption{
-                   GatewayUrl="http://localhost:5000"
-               });
+                services.AddSingleton<QueryServiceOption> (new QueryServiceOption {
+                    GatewayUrl = "http://10.0.84.33:60753"
+                });
 
- 
+                services.AddSingleton<IGateWayQueryService, APiServiceQuery> ();
 
-              services.AddSingleton<IGateWayQueryService, APiServiceQuery>();
+            });
 
-          });
-
-
-            var queryserviceenpoint = provider.GetService<IGateWayQueryService>();
-
+            var queryserviceenpoint = provider.GetService<IGateWayQueryService> ();
 
             string servicename = "apiservice";
 
+            for (;;) {
 
-            for (; ; )
-            {
+                Console.WriteLine ("===================================================");
 
-                Console.WriteLine("===================================================");
+            //    var queryServiceclient = RestService.For<IQueryService> ("http://10.0.84.33:60753");
 
-                var queryServiceclient = RestService.For<IQueryService>("http://localhost:5000");
-                
-                //await queryserviceenpoint.GetEndpoint(servicename);
+             var GetEndpoint=   await queryserviceenpoint.GetEndpoint(servicename);
 
-                 var queryresult = await queryServiceclient.QuerySerivce(servicename);
+             //   var queryresult = await queryServiceclient.QuerySerivce (servicename);
 
+                Console.WriteLine ($"{GetEndpoint.ToString()}");
 
-                Console.WriteLine(queryresult.ToString());
-
-                Console.ReadKey();
+                Console.ReadKey ();
             }
 
         }
 
-
-
-
-        static IServiceProvider GetProvider(Action<IServiceCollection> serviceaction)
-        {
-            IServiceCollection servies = new ServiceCollection();
-            if (serviceaction != null)
-            {
-                serviceaction(servies);
+        static IServiceProvider GetProvider (Action<IServiceCollection> serviceaction) {
+            IServiceCollection servies = new ServiceCollection ();
+            if (serviceaction != null) {
+                serviceaction (servies);
             }
 
-            return servies.BuildServiceProvider();
+            return servies.BuildServiceProvider ();
 
         }
     }
 
-    
 }
