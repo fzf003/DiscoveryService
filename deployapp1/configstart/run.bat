@@ -1,3 +1,0 @@
-cd ..
-
-dotnet consulconsle.dll
