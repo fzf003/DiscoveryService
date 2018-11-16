@@ -1,118 +1,90 @@
-
+using System;
+using System.IO;
+using System.Net.Http;
+using DiscoveryService;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using DiscoveryService;
-using System;
-using StackExchange.Redis;
-using System.Net.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using StackExchange.Redis;
+using Swashbuckle.AspNetCore.Swagger;
+namespace consulconsle {
+    public class Startup {
+        public Startup (IHostingEnvironment env) {
+            var builder = new ConfigurationBuilder ()
+                .SetBasePath (env.ContentRootPath)
+                .AddJsonFile ("appsettings.json")
+                .AddEnvironmentVariables ();
 
-namespace consulconsle
-{
-    public class Startup
-    {
-        public Startup(IHostingEnvironment env)
-        {
-            var builder = new ConfigurationBuilder()
-                         .SetBasePath(env.ContentRootPath)
-                         .AddJsonFile("appsettings.json")
-                         .AddEnvironmentVariables();
-
-            Configuration = builder.Build();
+            Configuration = builder.Build ();
 
         }
 
         public IConfiguration Configuration { get; }
 
-        public void ConfigureServices(IServiceCollection services)
-        {
+        public void ConfigureServices (IServiceCollection services) {
 
-            services.AddOptions();
+            services.AddOptions ();
 
-            services.AddSingleton<ISerializationService, DefaultSerializationService>();
+            services.AddSingleton<ISerializationService, DefaultSerializationService> ();
 
-            services.AddSingleton<IConnectionMultiplexer>((prov) =>
-             {
+            services.AddSingleton<IConnectionMultiplexer> ((prov) => {
 
-                 return ConnectionMultiplexer.Connect("10.6.24.13:6379");
+                return ConnectionMultiplexer.Connect ("127.0.0.1:6379");
+            });
+
+            services.AddSingleton<IServiceBus, RedisBus> ();
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor> ();
+
+            services.AddSwaggerGen (c => {
+                 c.SwaggerDoc ("v1", new Info { Title = "apiservice", Version = "v1" });
              });
 
-             
+            services.AddMvcCore ().AddApiExplorer ();
 
-       
-
-
-
-
-            services.AddSingleton<IServiceBus, RedisBus>();
-
-
-
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
-
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-
-
+            services.AddMvc ().SetCompatibilityVersion (CompatibilityVersion.Version_2_1);
 
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime applicationLifetime, ILoggerFactory loggerFactory)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseHsts();
+        public void Configure (IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime applicationLifetime, ILoggerFactory loggerFactory) {
+            if (env.IsDevelopment ()) {
+                app.UseDeveloperExceptionPage ();
+            } else {
+                app.UseHsts ();
             }
 
+            app.UseMvc ();
 
+            app.UseMvcWithDefaultRoute ();
 
-            app.UseMvc();
-            
-            app.UseMvcWithDefaultRoute();
+            app.UseDiscoveryService ();
 
-            app.UseDiscoveryService();
+            app.MapWhen (context => {
+                return context.Request.Path.Value.Contains ("/hello");
 
-            app.MapWhen(context =>
-            {
-                return context.Request.Path.Value.Contains("/hello");
+            }, appbuild => {
 
-            }, appbuild =>
-            {
+                appbuild.Run (async context => {
 
-                appbuild.Run(async context =>
-                {
+                    await context.Response.WriteAsync (context.Connection.LocalIpAddress + "==" + context.Connection.LocalPort);
 
-                    await context.Response.WriteAsync(context.Connection.LocalIpAddress + "==" + context.Connection.LocalPort);
-
-                    await context.Response.WriteAsync(context.Connection.RemoteIpAddress + "==" + context.Connection.RemotePort);
+                    await context.Response.WriteAsync (context.Connection.RemoteIpAddress + "==" + context.Connection.RemotePort);
 
                 });
 
             });
 
-           /*  app.Run(async context =>
-                     {
-                         var conf = app.ApplicationServices.GetService<IHttpContextAccessor>();
+            app.UseSwagger (c => { });
+            app.UseSwaggerUI (c => {
+                c.SwaggerEndpoint ("/swagger/v1/swagger.json", "apiservice");
+            });
 
-                         foreach (var c in this.Configuration.AsEnumerable())
-                         {
-                             await context.Response.WriteAsync($"{c.Key} = {c.Value}\n");
-                         }
-                     });*/
-
-
-
-
-
+          
 
         }
     }

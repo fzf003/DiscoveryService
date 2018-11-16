@@ -48,18 +48,20 @@ namespace consulconsle.Controllers {
               this.Configuration = configuration;
 
           } */
+
+        [HttpGet ("str/{str}")]
+        public async Task<string> GetStr (string str) => $"http://39.96.8.95:8700/{str}";
+
         // GET api/values
         [HttpGet]
         public async Task<ServiceInformation[]> Get () {
 
             var result = await this.clusterProvider.FindServiceInstancesAsync ("apiservice");
-            
 
-            return result.Select(p=>
-            {
-                p.Version=this.serviceConfig.Value.version;
+            return result.Select (p => {
+                p.Version = this.serviceConfig.Value.version;
                 return p;
-            }).ToArray();
+            }).ToArray ();
         }
 
         [HttpGet ("/ServiceInfo")]
@@ -72,11 +74,9 @@ namespace consulconsle.Controllers {
         [HttpGet ("{id}")]
         public async Task<ServiceInformation> Get (string id) {
             var result = await this.clusterProvider.FindServiceInstanceAsync (id);
-            if(result!=null)
-            {
-                result.Version=this.serviceConfig.Value.version;
+            if (result != null) {
+                result.Version = this.serviceConfig.Value.version;
             }
-
 
             return result;
         }

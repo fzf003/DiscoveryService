@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Linq;
 namespace ConsulGatewayApp {
+    
     [ApiController]
     public class QueryServiceController : ControllerBase {
 
@@ -16,6 +17,8 @@ namespace ConsulGatewayApp {
             this.serviceConfig = serviceConfig.Value;
 
         }
+
+    
 
         [HttpGet ("/GetServices/{servicename}")]
         public async Task<ServiceInformation[]> GetServices (string servicename) {

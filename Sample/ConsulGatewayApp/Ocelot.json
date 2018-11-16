@@ -71,7 +71,17 @@
         "Type": "RoundRobin"
       },
       "Key": "Tom"
-    }
+    },
+    {
+      "DownstreamPathTemplate": "/swagger/v1/swagger.json",
+      "DownstreamScheme": "http",
+      "ServiceName": "apiservice",
+      "UpstreamPathTemplate": "/a/swagger.json",
+      "UpstreamHttpMethod": [ "Get", "POST" ]
+   }
+
+   
+  
   ],
   "Aggregates": [
     {

@@ -7,6 +7,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Ocelot.Provider.Consul;
 using DiscoveryService;
+    using Swashbuckle.AspNetCore.Swagger;
+    using System.IO;
+
+
 namespace ConsulGatewayApp
 {
     public class Startup
@@ -25,6 +29,13 @@ namespace ConsulGatewayApp
             //services.AddOcelot();
 
             services.AddOcelot().AddConsul();
+
+
+            services.AddSwaggerGen(c =>
+                   {
+                       c.SwaggerDoc("v1", new Info { Title = "GateWayService", Version = "v1" });
+                      
+                   });
             
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
@@ -37,8 +48,15 @@ namespace ConsulGatewayApp
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseMvc();
-            app.UseDiscoveryService();
+            app.UseMvc()
+             .UseSwagger().UseSwaggerUI(c =>
+                    {
+                        c.SwaggerEndpoint("/a/swagger.json", "ApiSerice");
+                        c.SwaggerEndpoint("/a/swagger.json", "TestSerice");
+                        c.SwaggerEndpoint ("/swagger/v1/swagger.json", "gatewayservice");
+                    });
+
+                     app.UseDiscoveryService();
              
               app.UseOcelot().Wait();
         }
