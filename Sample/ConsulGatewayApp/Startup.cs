@@ -7,9 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Ocelot.Provider.Consul;
 using DiscoveryService;
-    using Swashbuckle.AspNetCore.Swagger;
-    using System.IO;
-
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace ConsulGatewayApp
 {
@@ -25,10 +23,11 @@ namespace ConsulGatewayApp
 
         public void ConfigureServices(IServiceCollection services)
         {  
-            
-            //services.AddOcelot();
+             services.AddOcelot()
+                    .AddConsul()
+                    ;
 
-            services.AddOcelot().AddConsul();
+                    services.AddDiscoveryService();
 
 
             services.AddSwaggerGen(c =>
@@ -49,15 +48,14 @@ namespace ConsulGatewayApp
             }
 
             app.UseMvc()
+             .UseDiscoveryService()
              .UseSwagger().UseSwaggerUI(c =>
                     {
                         c.SwaggerEndpoint("/a/swagger.json", "ApiSerice");
                         c.SwaggerEndpoint("/a/swagger.json", "TestSerice");
                         c.SwaggerEndpoint ("/swagger/v1/swagger.json", "gatewayservice");
                     });
-
-                     app.UseDiscoveryService();
-             
+              
               app.UseOcelot().Wait();
         }
     }

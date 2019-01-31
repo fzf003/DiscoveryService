@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 using DiscoveryService;
 using Refit;
 using System;
+using Rebus.Handlers;
+using System.Linq;
+using Rebus.Bus;
 
 namespace Discovery.Consul
 {
@@ -73,6 +76,34 @@ namespace Discovery.Consul
         public void Start()
         {
            Console.WriteLine("开始");
+        }
+    }
+
+
+    public class Message1
+    {
+        public Message1(string name)
+        {
+            Id = Guid.NewGuid();
+            Name=name;
+        }
+        public Guid Id { get; }
+         public string Name { get; }
+
+        public override string ToString()
+        {
+            return $"Message1 : {Id}";
+        }
+    }
+
+
+     public class Handler1 : IHandleMessages<Message1>
+    {
+        public Task Handle(Message1 message)
+        {
+            Console.WriteLine($"Handler1 received : {message.Name}");
+
+            return Task.CompletedTask;
         }
     }
 

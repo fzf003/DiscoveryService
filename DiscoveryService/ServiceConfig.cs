@@ -7,8 +7,12 @@ using Microsoft.Extensions.Options;
 namespace DiscoveryService
 {
 
-    public class ServiceConfig : IOptions<ServiceConfig>
+    public class ServiceConfig 
     {
+        public ServiceConfig()
+        {
+            this.serviceId=Guid.NewGuid().ToString("N");
+        }
         public string serviceName { get; set; }
 
         public string serviceId { get; set; }
@@ -17,6 +21,7 @@ namespace DiscoveryService
 
         public string version { get; set; }
 
-        public ServiceConfig Value => this;
-    }
+        public string[] Tags{get;set;}
+
+         }
 }

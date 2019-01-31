@@ -4,10 +4,7 @@ using System.Threading.Tasks;
 
 namespace DiscoveryService {
 
-   /* public interface IFrameworkProvider {
-        Uri Start (string serviceName, string version,Action<Uri> action=null);
-    }*/
-
+  
     public interface IClusterClinet {
         Task<ServiceInformation[]> FindServiceInstancesAsync (string servicename);
 
@@ -18,8 +15,7 @@ namespace DiscoveryService {
         Task<T> KvGetAsync<T> (string key);
 
         Task DeregisterServiceAsync (string serviceId);
-
-      
+       
 
         Task<ServiceInformation> RegisterServiceAsync (string serviceName, string serviceId, string version, Uri uri = null, IEnumerable<string> tags = null);
 
@@ -38,7 +34,7 @@ namespace DiscoveryService {
         public Task<ServiceInformation> RegisterServiceAsync(string serviceName, string serviceId, string version, Uri uri = null, IEnumerable<string> tags = null)
          {
             return _clusterProvider.RegisterServiceAsync (serviceName, serviceId, version, uri,tags);
-        }
+         }
 
         public Task DeregisterServiceAsync (string serviceId) {
             if (string.IsNullOrWhiteSpace (serviceId)) {

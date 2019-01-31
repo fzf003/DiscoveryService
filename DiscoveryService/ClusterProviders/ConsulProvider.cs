@@ -1,49 +1,33 @@
 
-
 using System;
-using System.Threading.Tasks;
-using System.Collections;
-using Consul;
-using System.Net;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Net;
 using System.Text;
+using System.Threading.Tasks;
+using Consul;
+using Newtonsoft.Json;
 
 namespace DiscoveryService
 {
-    public interface IClusterProvider
-    {
-        Task<ServiceInformation[]> FindServiceInstancesAsync(string name);
-
-        Task<ServiceInformation> RegisterServiceAsync(string serviceName, string serviceId, string version, Uri uri = null, IEnumerable<string> tags = null);
-
-        Task BootstrapClientAsync();
-
-        Task KvPutAsync(string key, object value);
-
-        Task<T> KvGetAsync<T>(string key);
-
-        Task KvDeleteAsync(string key);
-
-        Task<bool> DeregisterServiceAsync(string serviceId);
-
-
-    }
-
-    public class ConsulProvider : IClusterProvider
+ public class ConsulProvider : IClusterProvider
     {
 
         readonly IConsulClient consulClient;
 
+        readonly  HashSet<string> lookup ;
+
         public ConsulProvider(IConsulClient consulClient)
         {
             this.consulClient = consulClient;
+
+            this.lookup=new HashSet<string>();
         }
 
 
         public Task BootstrapClientAsync()
         {
+            StartReaper();
             return Task.CompletedTask;
         }
 
@@ -109,14 +93,16 @@ namespace DiscoveryService
         public async Task<ServiceInformation> RegisterServiceAsync(string serviceName, string serviceId, string version, Uri uri = null, IEnumerable<string> tags = null)
         {
             var tagList = (tags ?? Enumerable.Empty<string>()).ToList();
-
+            tagList.Add($"urlprefix-/{serviceName}");
+ 
             AgentServiceRegistration asr = new AgentServiceRegistration()
             {
-                Address = uri.Host,
+                Address = Dns.GetHostName(),
                 Port = uri.Port,
                 ID = serviceId,
                 Name = serviceName,
-                Tags = new[] { $"urlprefix-/{serviceName}" }
+                Tags = tagList.ToArray(),
+                 
             };
 
             asr.Check = new AgentServiceCheck()
@@ -128,7 +114,8 @@ namespace DiscoveryService
 
                 Interval = TimeSpan.FromMilliseconds(2000),
 
-                Timeout = TimeSpan.FromSeconds(5)
+                Timeout = TimeSpan.FromSeconds(5),
+               
             };
 
             var response = await this.consulClient.Agent.ServiceRegister(asr);
@@ -137,8 +124,7 @@ namespace DiscoveryService
             {
                 throw new Exception("注册失败");
             }
-
-
+ 
             return new ServiceInformation
             {
                 Id = asr.ID,
@@ -172,8 +158,51 @@ namespace DiscoveryService
 
             
         }
+
+            private void StartReaper()
+        {
+            Task.Factory.StartNew(async () =>
+            {
+                await Task.Delay(1000).ConfigureAwait(false);
+              //  Logger.Information("服务已启动");
+
+                var c = this.consulClient;
+
+                var lookup = new HashSet<string>();
+                while (true)
+                {
+                    try
+                    {
+                     var res=await  c.Health.State(HealthStatus.Critical);
+                     var queryrequest=res.Response.Select(p=>p.ServiceID).ToList();
+
+                     foreach(var criticalServiceId in queryrequest)
+                     {
+
+                           if (lookup.Contains(criticalServiceId))
+                            {
+                               await DeregisterServiceAsync(criticalServiceId).ConfigureAwait(false);
+                              Console.WriteLine("下线： {0}", criticalServiceId);
+                               // await c.DeregisterServiceAsync(criticalServiceId).ConfigureAwait(false);
+                               // Logger.Information("下线： {ServiceId}", criticalServiceId);
+                            }
+
+                     }
+
+                     lookup.RemoveWhere(i => !queryrequest.Contains(i));
+                        
+                      
+                    }
+                    catch (Exception x)
+                    {
+                         Console.WriteLine($"{x} Crashed");
+                    }
+
+                    await Task.Delay(5000).ConfigureAwait(false);
+                }
+            });
+        }
+
+    
     }
-
-
-
 }

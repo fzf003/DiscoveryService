@@ -20,11 +20,11 @@ namespace consulconsle.Controllers {
 
         readonly IOptions<ServiceConfig> serviceConfig;
 
-        readonly HttpClient httpClient;
+        readonly IHttpClientFactory httpClient;
 
         public IConfiguration Configuration { get; }
 
-        public ValuesController (IClusterClinet clusterProvider, HttpClient httpClient, IConfiguration configuration, IOptions<ServiceConfig> serviceConfig) {
+        public ValuesController (IClusterClinet clusterProvider, IHttpClientFactory httpClient, IConfiguration configuration, IOptions<ServiceConfig> serviceConfig) {
             this.httpClient = httpClient;
 
             this.Configuration = configuration;
@@ -49,8 +49,11 @@ namespace consulconsle.Controllers {
 
           } */
 
-        [HttpGet ("str/{str}")]
-        public async Task<string> GetStr (string str) => $"http://39.96.8.95:8700/{str}";
+        [HttpGet ("/str/{str}")]
+        public async Task<string> GetStr (string str)
+        {
+            return  serviceConfig.Value.version;
+        }
 
         // GET api/values
         [HttpGet]

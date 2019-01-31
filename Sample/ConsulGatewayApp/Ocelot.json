@@ -3,7 +3,7 @@
     {
       "DownstreamPathTemplate": "/api/calc/add/{x}/{y}",
       "DownstreamScheme": "http",
-      "ServiceName": "apiservice",
+      "ServiceName": "ApiService",
       "LoadBalancerOptions": {
         "Type": "RoundRobin"
       },
@@ -13,9 +13,23 @@
     },
 
     {
+      "DownstreamPathTemplate": "/api/values",
+      "DownstreamScheme": "http",
+      "ServiceName": "webclientservice",
+      "LoadBalancerOptions": {
+        "Type": "RoundRobin"
+      },
+      "UseServiceDiscovery": true,
+      "UpstreamPathTemplate": "/fzf/values",
+      "UpstreamHttpMethod": ["GET"],
+      "Key": "Tom"
+    },
+
+
+    {
       "DownstreamPathTemplate": "/apiservice/values/{url}",
       "DownstreamScheme": "http",
-      "ServiceName": "apiservice",
+      "ServiceName": "ApiService",
       "LoadBalancerOptions": {
         "Type": "RoundRobin"
       },
@@ -51,7 +65,7 @@
     {
       "DownstreamPathTemplate": "/ServiceInfo",
       "DownstreamScheme": "http",
-      "ServiceName": "apiservice",
+      "ServiceName": "ApiService",
       "UseServiceDiscovery": true,
       "UpstreamPathTemplate": "/fzf003/ServiceInfo",
       "UpstreamHttpMethod": [],
@@ -60,22 +74,11 @@
       },
       "Key": "Laura"
     },
-    {
-      "DownstreamPathTemplate": "/hello",
-      "DownstreamScheme": "http",
-      "ServiceName": "myservice1",
-      "UseServiceDiscovery": true,
-      "UpstreamPathTemplate": "/fzf003/hello",
-      "UpstreamHttpMethod": [],
-      "LoadBalancerOptions": {
-        "Type": "RoundRobin"
-      },
-      "Key": "Tom"
-    },
+
     {
       "DownstreamPathTemplate": "/swagger/v1/swagger.json",
       "DownstreamScheme": "http",
-      "ServiceName": "apiservice",
+      "ServiceName": "ApiService",
       "UpstreamPathTemplate": "/a/swagger.json",
       "UpstreamHttpMethod": [ "Get", "POST" ]
    }

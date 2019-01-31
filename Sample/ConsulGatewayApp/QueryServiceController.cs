@@ -5,8 +5,8 @@ using Microsoft.Extensions.Options;
 using System.Linq;
 namespace ConsulGatewayApp {
     
-    [ApiController]
-    public class QueryServiceController : ControllerBase {
+   /*  [ApiController]
+    public class QueryServiceController  {
 
         readonly IClusterClinet clusterClinet;
 
@@ -37,12 +37,12 @@ namespace ConsulGatewayApp {
             var result = await this.clusterClinet.FindServiceInstanceAsync (servicename);
 
             if (result != null) {
-                result.Version = this.serviceConfig.Value.version;
+                result.Version = this.serviceConfig.version;
             }
 
             return result;
 
         }
 
-    }
+    }*/
 }

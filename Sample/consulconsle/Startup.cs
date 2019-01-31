@@ -14,7 +14,7 @@ using StackExchange.Redis;
 using Swashbuckle.AspNetCore.Swagger;
 namespace consulconsle {
     public class Startup {
-        public Startup (IHostingEnvironment env) {
+      /*  public Startup (IHostingEnvironment env) {
             var builder = new ConfigurationBuilder ()
                 .SetBasePath (env.ContentRootPath)
                 .AddJsonFile ("appsettings.json")
@@ -22,13 +22,21 @@ namespace consulconsle {
 
             Configuration = builder.Build ();
 
+        } */
+
+         public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        public  IConfiguration Configuration { get; }
 
         public void ConfigureServices (IServiceCollection services) {
 
             services.AddOptions ();
+            services.AddDiscoveryService();
+
+            
 
             services.AddSingleton<ISerializationService, DefaultSerializationService> ();
 
@@ -62,9 +70,9 @@ namespace consulconsle {
 
             app.UseMvcWithDefaultRoute ();
 
-            app.UseDiscoveryService ();
+            app.UseDiscoveryService();
 
-            app.MapWhen (context => {
+         /*    app.MapWhen (context => {
                 return context.Request.Path.Value.Contains ("/hello");
 
             }, appbuild => {
@@ -77,7 +85,7 @@ namespace consulconsle {
 
                 });
 
-            });
+            });*/
 
             app.UseSwagger (c => { });
             app.UseSwaggerUI (c => {

@@ -1,79 +1,93 @@
-﻿using System;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
-using Consul;
-using DiscoveryService;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using Refit;
-
+﻿using System; 
+using System.Linq; 
+using System.Net; 
+using System.Net.Http; 
+using System.Net.Sockets; 
+using System.Text; 
+using System.Threading.Tasks; 
+using Consul; 
+using DiscoveryService; 
+using Microsoft.Extensions.DependencyInjection; 
+using Microsoft.Extensions.Options; 
+using Rebus.Bus; 
+using Rebus.Routing.TypeBased; 
+using Rebus.ServiceProvider; 
+using Rebus.Transport.InMem; 
+using Refit; 
+using Rebus.Subscriptions;
+using Rebus.Persistence.FileSystem;
 namespace Discovery.Consul {
     class Program {
         static void Main (string[] args) {
+  
 
-             ServiceRun().Wait();
-
-             /* 
-
-            using (var host = new MyServiceHost (services => {
-                 services.AddSingleton<IStart, MyStart> ();
-             })) {
-
-                host.Run();
-
-                var process = host.ApplicationServices.GetService<IStart> ();
-
-                process.Start ();
-
-                Console.ReadKey ();
-            }*/
-
-            Console.ReadKey ();
+            ServiceRun().GetAwaiter().GetResult(); 
+ 
+            Console.ReadKey (); 
         }
 
         static async Task ServiceRun () {
-            var provider = GetProvider (services => {
 
-                services.AddSingleton<QueryServiceOption> (new QueryServiceOption {
-                    GatewayUrl = "http://10.0.84.33:60753"
-                });
+            var provider = GetProvider (services =>  {
 
-                services.AddSingleton<IGateWayQueryService, APiServiceQuery> ();
+            services.AddHttpClient();
+            services.AddDiscoveryServiceClient(cfg => cfg.Address = new Uri("http://localhost:8870")); 
 
-            });
+            services.AutoRegisterHandlersFromAssemblyOf < Handler1 > (); 
+ 
+            services.AddRebus(configure => configure
+                .Logging(l => l.None())
+                .Subscriptions(s=>s.UseJsonFile("99.json"))
+                .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "Messages"))
+                .Routing(r => r.TypeBased().MapAssemblyOf < Message1 > ("Messages")));
+            }); 
 
-            var queryserviceenpoint = provider.GetService<IGateWayQueryService> ();
 
-            string servicename = "apiservice";
 
-            for (;;) {
+            provider.UseRebus(); 
 
-                Console.WriteLine ("===================================================");
 
-            //    var queryServiceclient = RestService.For<IQueryService> ("http://10.0.84.33:60753");
+           var clusterclient = provider.GetService < IClusterClinet > (); 
+           var httpClientFactory = provider.GetRequiredService < IHttpClientFactory > (); 
 
-             var GetEndpoint=   await queryserviceenpoint.GetEndpoint(servicename);
+            string servicename = "apigateway"; 
+                   var producer = provider.GetRequiredService < IBus > (); 
+            await producer.Subscribe<Message1>();
 
-             //   var queryresult = await queryServiceclient.QuerySerivce (servicename);
+            for (; ; ) {
 
-                Console.WriteLine ($"{GetEndpoint.ToString()}");
+                var httpclient = httpClientFactory.CreateClient(); 
 
-                Console.ReadKey ();
+             var gatewayapp = await  clusterclient.FindServiceInstanceAsync(servicename); 
+
+                Console.WriteLine ("==================================================="); 
+
+               Console.WriteLine($"{gatewayapp.ToUri()}fzf/add/9/8"); 
+        
+
+        
+                         
+
+
+          var resp = await  httpclient.GetStringAsync($"{gatewayapp.ToUri()}fzf/add/9/8"); 
+
+          Console.WriteLine(resp); 
+           await producer.Publish(new Message1(resp)); 
+
+
+           
+                Console.ReadKey (); 
             }
 
         }
 
-        static IServiceProvider GetProvider (Action<IServiceCollection> serviceaction) {
-            IServiceCollection servies = new ServiceCollection ();
-            if (serviceaction != null) {
-                serviceaction (servies);
-            }
+        static IServiceProvider GetProvider (Action < IServiceCollection > serviceaction) {
+            IServiceCollection servies = new ServiceCollection (); 
+            
+                serviceaction (servies); 
+            
 
-            return servies.BuildServiceProvider ();
+            return servies.BuildServiceProvider (); 
 
         }
     }

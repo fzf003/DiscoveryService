@@ -26,12 +26,6 @@ namespace Discovery.Consul {
 
         }
 
-       /*  public virtual IHost OptionsConfigurat (Action<IServiceCollection> servicesbuild) {
-
-            servicesbuild?.Invoke (services);
-            return this;
-        }*/
-
         protected virtual void OnStart()
         {
 
